@@ -23,8 +23,7 @@ public class App {
     public static void main(String[] args) throws IOException {
         ST template = new STGroupFile("nl/malotaux/eric/stp/service.stg").getInstanceOf("services");
         template.add("services", readServices("/Users/ema21214/Downloads/Voorbeeld.xlsx"));
-        String render = template.render();
-        Files.write(Paths.get("target/services.html"), render.getBytes());
+        Files.write(Paths.get("target/services.html"), template.render().getBytes());
     }
 
     private static java.util.List<Service> readServices(String pad) throws IOException {
