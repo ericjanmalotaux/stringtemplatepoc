@@ -1,13 +1,19 @@
 package nl.malotaux.eric.stp;
 
+import io.vavr.collection.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroupFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.util.Date;
 
 /**
@@ -15,21 +21,20 @@ import java.util.Date;
  */
 public class App {
     public static void main(String[] args) throws IOException {
-        System.out.println("Hello World!");
-        String pad = "/Users/ema21214/Downloads/Voorbeeld.xlsx";
+        ST template = new STGroupFile("nl/malotaux/eric/stp/service.stg").getInstanceOf("services");
+        template.add("services", readServices("/Users/ema21214/Downloads/Voorbeeld.xlsx"));
+        String render = template.render();
+        Files.write(Paths.get("target/services.html"), render.getBytes());
+    }
 
+    private static java.util.List<Service> readServices(String pad) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook((new FileInputStream(pad)))) {
-            XSSFSheet first = workbook.getSheetAt(0);
-            for (int row = 12; row < 28; row++) {
-                XSSFRow currentRow = first.getRow(row);
-                Service service = new Service(currentRow.getCell(0).getDateCellValue(),
-                        currentRow.getCell(1).getStringCellValue(),
-                        currentRow.getCell(2).getStringCellValue(),
-                        currentRow.getCell(3).getStringCellValue());
-                System.out.println(service);
-            }
+            return List.range(12, 27).map(workbook.getSheetAt(0)::getRow).map(row -> new Service(
+                    row.getCell(0).getDateCellValue(),
+                    row.getCell(1).getStringCellValue(),
+                    row.getCell(2).getStringCellValue(),
+                    row.getCell(3).getStringCellValue())).toJavaList();
         }
-
     }
 
     static class Service {
@@ -38,15 +43,15 @@ public class App {
         String parent;
         String member;
 
-        public Service(Date cell, String cell1, String cell2, String cell3) {
-            this.datum = cell;
-            this.leader = cell1;
-            this.parent = cell2;
-            this.member = cell3;
+        public Service(Date datum, String leader, String parent, String member) {
+            this.datum = datum;
+            this.leader = leader;
+            this.parent = parent;
+            this.member = member;
         }
 
-        public Date getDatum() {
-            return datum;
+        public String getDatum() {
+            return DateFormat.getDateInstance(DateFormat.MEDIUM).format(datum);
         }
 
         public String getLeader() {
@@ -62,7 +67,7 @@ public class App {
         }
 
         public String toString() {
-            return ToStringBuilder.reflectionToString(this,  ToStringStyle.JSON_STYLE);
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
         }
     }
 }

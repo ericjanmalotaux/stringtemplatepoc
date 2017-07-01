@@ -1,0 +1,26 @@
+delimiters "{", "}"
+
+services(services) ::= <<
+<html>
+<head/>
+<body>
+    <table>
+        <tr>
+            <td><b>Datum</b></td>
+            <td><b>Leader</b></td>
+            <td><b>Parent</b></td>
+            <td><b>Member</b></td></b>
+        </tr>
+        {services:service(); separator="\n"}
+    </table>
+</body>
+>>
+
+service(service) ::= <<
+    <tr>
+        <td>{service.datum}</td>
+        <td>{service.leader}</td>
+        <td>{service.parent}</td>
+        <td>{service.member}</td>
+    </tr>
+>>
