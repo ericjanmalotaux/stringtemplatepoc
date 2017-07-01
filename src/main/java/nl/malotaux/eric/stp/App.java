@@ -3,7 +3,6 @@ package nl.malotaux.eric.stp;
 import io.vavr.collection.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.stringtemplate.v4.ST;
@@ -28,7 +27,8 @@ public class App {
 
     private static java.util.List<Service> readServices(String pad) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook((new FileInputStream(pad)))) {
-            return List.range(12, 27).map(workbook.getSheetAt(0)::getRow).map(row -> new Service(
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            return List.range(12, 27).map(sheet::getRow).map(row -> new Service(
                     row.getCell(0).getDateCellValue(),
                     row.getCell(1).getStringCellValue(),
                     row.getCell(2).getStringCellValue(),
